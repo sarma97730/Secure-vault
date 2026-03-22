@@ -1,5 +1,13 @@
 const express = require('express');
-const { dashboard, createUser, updateUser, deleteUser, createSubject } = require('../controllers/adminController');
+const {
+  dashboard,
+  createUser,
+  updateUser,
+  deleteUser,
+  createSubject,
+  updateSubject,
+  createTimetableEntry,
+} = require('../controllers/adminController');
 const { ensureAuthenticated } = require('../middleware/authMiddleware');
 const { allowRoles } = require('../middleware/roleMiddleware');
 
@@ -10,5 +18,7 @@ router.post('/users/create', createUser);
 router.post('/users/update', updateUser);
 router.post('/users/delete/:id', deleteUser);
 router.post('/subjects/create', createSubject);
+router.post('/subjects/update', updateSubject);
+router.post('/timetable/create', createTimetableEntry);
 
 module.exports = router;

@@ -43,8 +43,15 @@ const initializeDatabase = async () => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,
     description TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    staff_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(staff_id) REFERENCES users(id)
   )`);
+
+  const subjectColumns = await all(`PRAGMA table_info(subjects)`);
+  if (!subjectColumns.some((column) => column.name === 'staff_id')) {
+    await run('ALTER TABLE subjects ADD COLUMN staff_id INTEGER REFERENCES users(id)');
+  }
 
   await run(`CREATE TABLE IF NOT EXISTS notes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -115,6 +122,17 @@ const initializeDatabase = async () => {
     action TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS timetable (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id INTEGER NOT NULL,
+    staff_id INTEGER NOT NULL,
+    day TEXT NOT NULL,
+    time TEXT NOT NULL,
+    UNIQUE(staff_id, day, time),
+    FOREIGN KEY(subject_id) REFERENCES subjects(id),
+    FOREIGN KEY(staff_id) REFERENCES users(id)
   )`);
 
   const admin = await get('SELECT * FROM users WHERE role = ? LIMIT 1', ['admin']);
